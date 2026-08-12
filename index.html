@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ExpenseFlow – Personal Expense Tracker</title>
+  
+  <!-- Google Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/auth.css">
+
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <!-- Landing Header Nav -->
+  <nav class="landing-nav">
+    <div class="brand-logo">
+      <div class="brand-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <span>ExpenseFlow</span>
+    </div>
+    <div class="nav-links">
+      <a href="login.html" class="btn btn-secondary">Sign In</a>
+      <a href="signup.html" class="btn btn-primary">Get Started</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div>
+      <div class="hero-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Smart Financial Analytics Platform
+      </div>
+      <h1 class="hero-title">Take Full Control of Your Personal Finances</h1>
+      <p class="hero-desc">
+        Track daily expenses, categorize transactions, visualize spending analytics, and achieve your budget goals with ExpenseFlow's modern purple dashboard.
+      </p>
+      <div class="hero-actions">
+        <a href="signup.html" class="btn btn-primary" style="padding: 14px 28px; font-size: 16px;">
+          Create Free Account
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="login.html" class="btn btn-secondary" style="padding: 14px 28px; font-size: 16px;">
+          Live Dashboard
+        </a>
+      </div>
+    </div>
+
+    <!-- App Mockup Card -->
+    <div class="mockup-card">
+      <div class="mockup-header">
+        <div class="dots">
+          <div class="dot" style="background: #ef4444;"></div>
+          <div class="dot" style="background: #f59e0b;"></div>
+          <div class="dot" style="background: #10b981;"></div>
+        </div>
+        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">ExpenseFlow Dashboard</span>
+      </div>
+      <div class="mockup-stats">
+        <div class="mini-stat">
+          <div class="mini-label">Total Balance</div>
+          <div class="mini-val" style="color: #10b981;">+$3,820.00</div>
+        </div>
+        <div class="mini-stat">
+          <div class="mini-label">This Month Spent</div>
+          <div class="mini-val" style="color: #ef4444;">-$1,180.00</div>
+        </div>
+      </div>
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.06); padding: 14px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="padding: 8px; background: rgba(139, 92, 246, 0.2); border-radius: 8px; color: #a78bfa;">🛒</span>
+          <div>
+            <div style="font-size: 14px; font-weight: 600;">Whole Foods Market</div>
+            <div style="font-size: 11px; color: var(--text-dim);">Food & Groceries • Credit Card</div>
+          </div>
+        </div>
+        <span style="color: #ef4444; font-weight: 700;">-$85.50</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Feature Cards Grid -->
+  <section class="features-grid">
+    <div class="feature-item">
+      <div class="feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <h3 style="margin-bottom: 8px;">Supabase Security</h3>
+      <p style="font-size: 14px; color: var(--text-muted);">Protected with Row Level Security (RLS) so your financial records remain completely private to you.</p>
+    </div>
+
+    <div class="feature-item">
+      <div class="feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      </div>
+      <h3 style="margin-bottom: 8px;">Interactive Analytics</h3>
+      <p style="font-size: 14px; color: var(--text-muted);">Real-time Chart.js doughnut and monthly bar charts that update dynamically as you add or edit transactions.</p>
+    </div>
+
+    <div class="feature-item">
+      <div class="feature-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <h3 style="margin-bottom: 8px;">Fully Responsive UI</h3>
+      <p style="font-size: 14px; color: var(--text-muted);">Seamless experience across desktops, laptops, tablets, and mobile smartphones with card conversion.</p>
+    </div>
+  </section>
+
+  <!-- Application Logic Scripts -->
+  <script src="js/utils.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Redirect authenticated users directly to dashboard
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await getCurrentUser();
+      if (user) {
+        window.location.href = 'dashboard.html';
+      }
+    });
+  </script>
+</body>
+</html>
