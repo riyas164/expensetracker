@@ -14,11 +14,14 @@ async function formatUserProfile(supabase, user) {
 
   // Query profiles table for user full_name and email using auth user UUID
   try {
-    const { data: profile } = await supabase
+    const profilePromise = supabase
       .from('profiles')
       .select('full_name, email')
       .eq('id', user.id)
       .maybeSingle();
+
+    const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ data: null }), 2000));
+    const { data: profile } = await Promise.race([profilePromise, timeoutPromise]);
 
     if (profile && profile.full_name && profile.full_name.trim()) {
       fullName = profile.full_name;
@@ -138,9 +141,18 @@ async function signUpUser(fullName, email, password) {
       });
 
       if (error) {
-        console.error("Supabase Sign Up Error:", error);
-        if (error.message && error.message.toLowerCase().includes("user already registered")) {
+        console.warn("Supabase Sign Up Notice:", error.message || error);
+        const errMsg = (error.message || "").toLowerCase();
+        if (
+          errMsg.includes("user already registered") ||
+          errMsg.includes("already exists") ||
+          errMsg.includes("already in use") ||
+          error.code === "user_already_exists"
+        ) {
           throw new Error("An account with this email address already exists. Please log in.");
+        }
+        if (errMsg.includes("rate limit")) {
+          throw new Error("Too many requests. Please wait a few moments before trying again.");
         }
         throw new Error(error.message || "Failed to create account.");
       }
@@ -310,7 +322,7 @@ async function logoutUser() {
   }
   localStorage.removeItem(DEMO_USER_KEY);
   localStorage.removeItem('EF_FORCE_DEMO_MODE');
-  window.location.href = 'login.html';
+  window.location.href = '/login.html';
 }
 
 // Forgot Password
@@ -399,9 +411,9 @@ async function initAuthCheck(pageType) {
     // Listen for Auth state changes
     supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' && (isProtectedPage || pageType === 'protected')) {
-        window.location.href = 'login.html';
+        window.location.href = '/login.html';
       } else if (event === 'SIGNED_IN' && (isGuestPage || pageType === 'guest') && !window._isAuthenticating) {
-        window.location.href = 'dashboard.html';
+        window.location.href = '/dashboard.html';
       }
     });
   }
@@ -411,7 +423,7 @@ async function initAuthCheck(pageType) {
   if (pageType === 'protected' || isProtectedPage) {
     if (!user) {
       // Redirect unauthenticated user to login
-      window.location.href = 'login.html';
+      window.location.href = '/login.html';
       return null;
     }
 
@@ -440,7 +452,7 @@ async function initAuthCheck(pageType) {
   } else if (pageType === 'guest' || isGuestPage) {
     if (user && !window._isAuthenticating) {
       // Redirect authenticated user directly to dashboard
-      window.location.href = 'dashboard.html';
+      window.location.href = '/dashboard.html';
       return user;
     }
   }

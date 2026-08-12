@@ -63,7 +63,7 @@
       </form>
 
       <div class="auth-footer">
-        Don't have an account? <a href="signup.html">Sign Up</a>
+        Don't have an account? <a href="/signup.html">Sign Up</a>
       </div>
     </div>
   </div>
@@ -73,13 +73,52 @@
   <script src="js/supabase.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      // Redirect if already logged in
-      await initAuthCheck('guest');
+    document.addEventListener('DOMContentLoaded', () => {
+      // Prefill email if coming from signup page
+      const urlParams = new URLSearchParams(window.location.search);
+      const prefillEmail = urlParams.get('email');
+      const isRegistered = urlParams.get('registered') === 'true';
+
+      if (prefillEmail) {
+        const emailInput = document.getElementById('login-email');
+        if (emailInput) {
+          emailInput.value = prefillEmail;
+          const passwordInput = document.getElementById('login-password');
+          if (passwordInput) passwordInput.focus();
+        }
+      }
+
+      if (isRegistered) {
+        showToast('An account with this email already exists. Please enter your password to log in.', 'info', 5000);
+      }
 
       const form = document.getElementById('login-form');
       const submitBtn = document.getElementById('login-submit-btn');
       const demoBtn = document.getElementById('demo-login-btn');
+
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const email = document.getElementById('login-email').value;
+          const password = document.getElementById('login-password').value;
+
+          try {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Authenticating...';
+
+            await loginUser(email, password);
+            showToast('Login successful! Redirecting...', 'success');
+            
+            setTimeout(() => {
+              window.location.href = '/dashboard.html';
+            }, 600);
+          } catch (err) {
+            showToast(err.message || 'Failed to sign in.', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Sign In';
+          }
+        });
+      }
 
       if (demoBtn) {
         demoBtn.addEventListener('click', async () => {
@@ -89,7 +128,7 @@
             await loginDemoUser('demo@expenseflow.app', 'Demo User');
             showToast('Logged in as Demo User!', 'success');
             setTimeout(() => {
-              window.location.href = 'dashboard.html';
+              window.location.href = '/dashboard.html';
             }, 600);
           } catch(e) {
             showToast('Error entering Demo mode', 'error');
@@ -98,27 +137,8 @@
         });
       }
 
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('login-email').value;
-        const password = document.getElementById('login-password').value;
-
-        try {
-          submitBtn.disabled = true;
-          submitBtn.textContent = 'Authenticating...';
-
-          await loginUser(email, password);
-          showToast('Login successful! Redirecting...', 'success');
-          
-          setTimeout(() => {
-            window.location.href = 'dashboard.html';
-          }, 800);
-        } catch (err) {
-          showToast(err.message || 'Failed to sign in.', 'error');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Sign In';
-        }
-      });
+      // Perform auth check asynchronously without blocking form listener
+      initAuthCheck('guest').catch(err => console.warn("Notice during guest auth check:", err));
     });
   </script>
 </body>

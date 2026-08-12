@@ -70,7 +70,7 @@
       </form>
 
       <div class="auth-footer">
-        Already have an account? <a href="login.html">Log In</a>
+        Already have an account? <a href="/login.html">Log In</a>
       </div>
     </div>
   </div>
@@ -80,13 +80,58 @@
   <script src="js/supabase.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      // Redirect if already logged in
-      await initAuthCheck('guest');
-
+    document.addEventListener('DOMContentLoaded', () => {
       const form = document.getElementById('signup-form');
       const submitBtn = document.getElementById('signup-submit-btn');
       const demoBtn = document.getElementById('demo-signup-btn');
+
+      // Attach submit event listener IMMEDIATELY so form never submits natively
+      if (form) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const fullName = document.getElementById('signup-name').value;
+          const email = document.getElementById('signup-email').value;
+          const password = document.getElementById('signup-password').value;
+          const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+          if (password !== confirmPassword) {
+            showToast('Passwords do not match.', 'error');
+            return;
+          }
+
+          try {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creating Account...';
+
+            const result = await signUpUser(fullName, email, password);
+            if (result && result.requiresConfirmation) {
+              showToast('Registration successful! Please check your email inbox to verify your account before logging in.', 'success', 6000);
+              submitBtn.textContent = 'Verification Email Sent';
+              setTimeout(() => {
+                window.location.href = '/login.html';
+              }, 2500);
+            } else {
+              showToast('Registration successful! Redirecting to Dashboard...', 'success');
+              setTimeout(() => {
+                window.location.href = '/dashboard.html';
+              }, 600);
+            }
+          } catch (err) {
+            const isAlreadyRegistered = err.message && (err.message.includes('already exists') || err.message.includes('already registered'));
+            if (isAlreadyRegistered) {
+              showToast('Account already exists! Redirecting to Log In page...', 'error', 4000);
+              submitBtn.textContent = 'Account Exists - Redirecting...';
+              setTimeout(() => {
+                window.location.href = `/login.html?email=${encodeURIComponent(email)}&registered=true`;
+              }, 1200);
+            } else {
+              showToast(err.message || 'Failed to create account.', 'error');
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Create Free Account';
+            }
+          }
+        });
+      }
 
       if (demoBtn) {
         demoBtn.addEventListener('click', async () => {
@@ -96,7 +141,7 @@
             await loginDemoUser('demo@expenseflow.app', 'Demo User');
             showToast('Logged in as Demo User!', 'success');
             setTimeout(() => {
-              window.location.href = 'dashboard.html';
+              window.location.href = '/dashboard.html';
             }, 600);
           } catch(e) {
             showToast('Error entering Demo mode', 'error');
@@ -105,41 +150,8 @@
         });
       }
 
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const fullName = document.getElementById('signup-name').value;
-        const email = document.getElementById('signup-email').value;
-        const password = document.getElementById('signup-password').value;
-        const confirmPassword = document.getElementById('signup-confirm-password').value;
-
-        if (password !== confirmPassword) {
-          showToast('Passwords do not match.', 'error');
-          return;
-        }
-
-        try {
-          submitBtn.disabled = true;
-          submitBtn.textContent = 'Creating Account...';
-
-          const result = await signUpUser(fullName, email, password);
-          if (result && result.requiresConfirmation) {
-            showToast('Registration successful! Please check your email inbox to verify your account before logging in.', 'success', 6000);
-            submitBtn.textContent = 'Verification Email Sent';
-            setTimeout(() => {
-              window.location.href = 'login.html';
-            }, 3000);
-          } else {
-            showToast('Registration successful! Redirecting to Dashboard...', 'success');
-            setTimeout(() => {
-              window.location.href = 'dashboard.html';
-            }, 600);
-          }
-        } catch (err) {
-          showToast(err.message || 'Failed to create account.', 'error');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Create Free Account';
-        }
-      });
+      // Perform auth check asynchronously without blocking form listener
+      initAuthCheck('guest').catch(err => console.warn("Notice during guest auth check:", err));
     });
   </script>
 </body>
