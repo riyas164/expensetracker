@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
+    "prebuild": "cp -r js/* public/js/ 2>/dev/null || true && cp -r css/* public/css/ 2>/dev/null || true",
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
