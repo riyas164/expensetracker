@@ -39,13 +39,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (expenseDateInput) expenseDateInput.value = todayStr;
     if (incomeDateInput) incomeDateInput.value = todayStr;
 
-    // Load Data & Render Dashboard
-    await refreshDashboardData();
-
-    // Setup Event Listeners
+    // Setup Event Listeners immediately
     setupEventListeners();
+
+    // Load Data & Render Dashboard
+    try {
+      await refreshDashboardData();
+    } catch (dataErr) {
+      console.warn("Notice during dashboard data load:", dataErr);
+    }
   } catch (err) {
     console.error("Dashboard initialization error:", err);
+    const loadingOverlay = document.getElementById('auth-loading-overlay');
+    if (loadingOverlay) loadingOverlay.remove();
   }
 });
 

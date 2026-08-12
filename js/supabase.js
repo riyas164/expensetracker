@@ -6,16 +6,21 @@ let envUrl = '';
 let envKey = '';
 
 if (typeof window !== 'undefined') {
-  envUrl = window.VITE_SUPABASE_URL || (window.ENV && window.ENV.VITE_SUPABASE_URL) || (window.process && window.process.env && window.process.env.VITE_SUPABASE_URL) || '';
-  envKey = window.VITE_SUPABASE_ANON_KEY || (window.ENV && window.ENV.VITE_SUPABASE_ANON_KEY) || (window.process && window.process.env && window.process.env.VITE_SUPABASE_ANON_KEY) || '';
+  if (window.VITE_SUPABASE_URL) envUrl = window.VITE_SUPABASE_URL;
+  if (window.VITE_SUPABASE_ANON_KEY) envKey = window.VITE_SUPABASE_ANON_KEY;
+  if (!envUrl && window.ENV && window.ENV.VITE_SUPABASE_URL) envUrl = window.ENV.VITE_SUPABASE_URL;
+  if (!envKey && window.ENV && window.ENV.VITE_SUPABASE_ANON_KEY) envKey = window.ENV.VITE_SUPABASE_ANON_KEY;
 }
 
-const SUPABASE_URL = envUrl || "https://wmqezligjotwpnjpauzf.supabase.co";
-const SUPABASE_ANON_KEY = envKey || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtcWV6bGlnam90d3BuanBhdXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyNzExMjUsImV4cCI6MjEwMTg0NzEyNX0.OY4G0VzQwJdAHhF6ZS_gEiaK4SeVAXS7knOY-uCRwjk";
+const DEFAULT_SUPABASE_URL = "https://wmqezligjotwpnjpauzf.supabase.co";
+const DEFAULT_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtcWV6bGlnam90d3BuanBhdXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyNzExMjUsImV4cCI6MjEwMTg0NzEyNX0.OY4G0VzQwJdAHhF6ZS_gEiaK4SeVAXS7knOY-uCRwjk";
+
+const SUPABASE_URL = (envUrl || DEFAULT_SUPABASE_URL).trim();
+const SUPABASE_ANON_KEY = (envKey || DEFAULT_SUPABASE_ANON_KEY).trim();
 
 // Runtime override from localStorage if set via UI settings modal
-const activeSupabaseUrl = (localStorage.getItem('EF_SUPABASE_URL') || SUPABASE_URL || '').trim();
-const activeSupabaseKey = (localStorage.getItem('EF_SUPABASE_KEY') || SUPABASE_ANON_KEY || '').trim();
+const activeSupabaseUrl = (localStorage.getItem('EF_SUPABASE_URL') || SUPABASE_URL).trim();
+const activeSupabaseKey = (localStorage.getItem('EF_SUPABASE_KEY') || SUPABASE_ANON_KEY).trim();
 const forcedDemoMode = localStorage.getItem('EF_FORCE_DEMO_MODE') === 'true';
 
 let supabaseClient = null;
@@ -23,6 +28,10 @@ let isDemoMode = forcedDemoMode;
 
 const isPlaceholderUrl = !activeSupabaseUrl || activeSupabaseUrl === 'YOUR_SUPABASE_URL' || activeSupabaseUrl.includes('YOUR_');
 const isPlaceholderKey = !activeSupabaseKey || activeSupabaseKey === 'YOUR_SUPABASE_ANON_KEY' || activeSupabaseKey.includes('YOUR_');
+
+if (!envUrl || !envKey) {
+  console.info("Notice: VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY environment variables can be added to Netlify Environment Variables for production build.");
+}
 
 // Initialize Supabase Client if valid keys exist, else fall back to Demo/Local Mode
 if (!forcedDemoMode && window.supabase && !isPlaceholderUrl && !isPlaceholderKey) {
