@@ -1,25 +1,14 @@
 /**
  * ExpenseFlow - Supabase Configuration & Client Initialization
- * 
- * Instructions:
- * 1. Replace YOUR_SUPABASE_URL with your Supabase Project URL.
- * 2. Replace YOUR_SUPABASE_ANON_KEY with your Supabase Anon/Public Key.
- * 
- * Never use the service_role key on the client side.
  */
 
 let envUrl = '';
 let envKey = '';
-try {
-  if (typeof window !== 'undefined') {
-    envUrl = window.VITE_SUPABASE_URL || (window.ENV && window.ENV.VITE_SUPABASE_URL) || '';
-    envKey = window.VITE_SUPABASE_ANON_KEY || (window.ENV && window.ENV.VITE_SUPABASE_ANON_KEY) || '';
-  }
-  if (!envUrl && typeof process !== 'undefined' && process.env) {
-    envUrl = process.env.VITE_SUPABASE_URL || '';
-    envKey = process.env.VITE_SUPABASE_ANON_KEY || '';
-  }
-} catch (e) {}
+
+if (typeof window !== 'undefined') {
+  envUrl = window.VITE_SUPABASE_URL || (window.ENV && window.ENV.VITE_SUPABASE_URL) || (window.process && window.process.env && window.process.env.VITE_SUPABASE_URL) || '';
+  envKey = window.VITE_SUPABASE_ANON_KEY || (window.ENV && window.ENV.VITE_SUPABASE_ANON_KEY) || (window.process && window.process.env && window.process.env.VITE_SUPABASE_ANON_KEY) || '';
+}
 
 const SUPABASE_URL = envUrl || "https://wmqezligjotwpnjpauzf.supabase.co";
 const SUPABASE_ANON_KEY = envKey || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtcWV6bGlnam90d3BuanBhdXpmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyNzExMjUsImV4cCI6MjEwMTg0NzEyNX0.OY4G0VzQwJdAHhF6ZS_gEiaK4SeVAXS7knOY-uCRwjk";
@@ -38,7 +27,14 @@ const isPlaceholderKey = !activeSupabaseKey || activeSupabaseKey === 'YOUR_SUPAB
 // Initialize Supabase Client if valid keys exist, else fall back to Demo/Local Mode
 if (!forcedDemoMode && window.supabase && !isPlaceholderUrl && !isPlaceholderKey) {
   try {
-    supabaseClient = window.supabase.createClient(activeSupabaseUrl, activeSupabaseKey);
+    supabaseClient = window.supabase.createClient(activeSupabaseUrl, activeSupabaseKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storage: window.localStorage
+      }
+    });
     console.log("Supabase Client initialized successfully.");
   } catch (err) {
     console.warn("Failed to initialize Supabase client, enabling Demo Mode:", err);
@@ -87,4 +83,3 @@ window.getSupabase = getSupabase;
 window.checkIsDemoMode = checkIsDemoMode;
 window.setDemoMode = setDemoMode;
 window.updateSupabaseConfig = updateSupabaseConfig;
-

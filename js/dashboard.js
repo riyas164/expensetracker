@@ -19,22 +19,34 @@ let activeFilters = {
 
 // Initialize Dashboard Page
 document.addEventListener('DOMContentLoaded', async () => {
-  // Verify Authentication & Route Guard
-  currentUser = await initAuthCheck('protected');
-  if (!currentUser) return;
+  try {
+    // Verify Authentication & Route Guard
+    currentUser = await initAuthCheck('protected');
+    if (!currentUser) return;
 
-  // Set default form date to today (YYYY-MM-DD)
-  const todayStr = new Date().toISOString().split('T')[0];
-  const expenseDateInput = document.getElementById('expense-date');
-  const incomeDateInput = document.getElementById('income-date');
-  if (expenseDateInput) expenseDateInput.value = todayStr;
-  if (incomeDateInput) incomeDateInput.value = todayStr;
+    // Remove loading overlay smoothly once authenticated
+    const loadingOverlay = document.getElementById('auth-loading-overlay');
+    if (loadingOverlay) {
+      loadingOverlay.style.opacity = '0';
+      loadingOverlay.style.visibility = 'hidden';
+      setTimeout(() => loadingOverlay.remove(), 300);
+    }
 
-  // Load Data & Render Dashboard
-  await refreshDashboardData();
+    // Set default form date to today (YYYY-MM-DD)
+    const todayStr = new Date().toISOString().split('T')[0];
+    const expenseDateInput = document.getElementById('expense-date');
+    const incomeDateInput = document.getElementById('income-date');
+    if (expenseDateInput) expenseDateInput.value = todayStr;
+    if (incomeDateInput) incomeDateInput.value = todayStr;
 
-  // Setup Event Listeners
-  setupEventListeners();
+    // Load Data & Render Dashboard
+    await refreshDashboardData();
+
+    // Setup Event Listeners
+    setupEventListeners();
+  } catch (err) {
+    console.error("Dashboard initialization error:", err);
+  }
 });
 
 // Refresh All Stats, Charts, and Table Data

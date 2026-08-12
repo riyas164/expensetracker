@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Ensure email column exists on existing installations
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email TEXT;
+
 -- Index for Profiles Table
 CREATE INDEX IF NOT EXISTS idx_profiles_id ON public.profiles(id);
 
